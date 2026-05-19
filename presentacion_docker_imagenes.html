@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UD 04: Gestión de Imágenes en Docker</title>
+    <!-- CSS de Reveal.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <!-- Tema oscuro por defecto -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    <!-- Resaltado de sintaxis para el código -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --r-main-font: 'Segoe UI', system-ui, sans-serif;
+            --r-heading-font: 'Segoe UI', system-ui, sans-serif;
+            --r-link-color: #22c55e;
+            --r-link-color-hover: #4ade80;
+            --docker-blue: #0db7ed;
+            --docker-green: #22c55e;
+        }
+        .reveal { background-color: #0b0f19; }
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none !important; font-weight: 700; }
+        .accent-green { color: var(--docker-green); }
+        .accent-blue { color: var(--docker-blue); }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
+        .command-box {
+            background: #1e293b !important;
+            border-left: 6px solid var(--docker-green) !important;
+            padding: 18px !important;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            text-align: left;
+            margin-top: 15px !important;
+        }
+        .badge-demo {
+            background: #16a34a;
+            color: white;
+            font-size: 0.45em !important;
+            padding: 4px 10px;
+            border-radius: 20px;
+            vertical-align: middle;
+            margin-left: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .home-btn {
+            position: fixed; bottom: 25px; left: 25px; z-index: 1000;
+            color: #64748b; font-size: 1.6rem; transition: color 0.3s, transform 0.2s;
+        }
+        .home-btn:hover { color: var(--docker-green); transform: scale(1.1); }
+        
+        ul { font-size: 0.8em; line-height: 1.6 !important; }
+        li { margin-bottom: 12px !important; }
+        pre code { border-radius: 8px; font-size: 0.75em !important; line-height: 1.4 !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Botón de retorno al index -->
+    <a href="index.html" class="home-btn" title="Volver al menú de unidades">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Diapositiva 1: Portada -->
+            <section data-background-gradient="linear-gradient(135deg, #0f172a 0%, #020617 100%)">
+                <i class="fab fa-docker" style="font-size: 5.5rem; color: var(--docker-blue); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(13,183,237,0.3));"></i>
+                <h2>Gestión de <span class="accent-green">Imágenes</span> en Docker</h2>
+                <p style="color: #94a3b8; font-size: 1.2rem;">Comandos esenciales, estructura y automatización para laboratorios</p>
+                <div style="margin-top: 50px; font-size: 0.95rem; color: #cbd5e1; font-weight: 500;">
+                    Curso de Introducción a Docker y Kubernetes
+                </div>
+                <div style="margin-top: 20px; font-size: 0.75rem; color: #64748b;">
+                    Navegación: Usa las flechas del teclado o la barra espaciadora
+                </div>
+            </section>
+
+            <!-- Diapositiva 2: Anatomía de una Imagen -->
+            <section>
+                <h3>Anatomía de una Imagen</h3>
+                <p style="font-size: 0.85em; text-align: left;">Una imagen es un conjunto de **capas de sólo lectura**. Al arrancar un contenedor, se añade una capa superior temporal de lectura/escritura.</p>
+                
+                <div class="grid-2" style="margin-top: 25px;">
+                    <div style="background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
+                        <div style="background: #e11d48; color: white; font-weight: bold; padding: 8px; margin: 4px; border-radius: 4px; font-size: 0.65em;"><i class="fas fa-pencil"></i> Capa del Contenedor (Lectura/Escritura)</div>
+                        <div style="background: #334155; padding: 8px; margin: 4px; border-radius: 4px; font-size: 0.65em; color: #94a3b8;">Capa 3: Archivos de la App (Inmutable)</div>
+                        <div style="background: #1e293b; padding: 8px; margin: 4px; border-radius: 4px; font-size: 0.65em; color: #94a3b8;">Capa 2: Entornos de ejecución (Nginx/Python)</div>
+                        <div style="background: #0f172a; padding: 8px; margin: 4px; border-radius: 4px; font-size: 0.65em; color: var(--docker-blue);">Capa 1: Distribución Base (Alpine/Ubuntu)</div>
+                    </div>
+                    <div style="text-align: left; font-size: 0.75rem;">
+                        <ul>
+                            <li>Las capas se comparten entre imágenes idénticas para **ahorrar espacio en disco**.</li>
+                            <li>La inmutabilidad garantiza que el entorno siempre arranque exactamente igual sin importar la estación de trabajo.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 3: Búsqueda y Descarga -->
+            <section>
+                <h3>1. Buscar y Descargar <span class="badge-demo">PROBAR ANTES</span></h3>
+                <p style="font-size: 0.8em; text-align: left;">Localiza componentes en el registro público de Docker Hub antes de descargarlos localmente.</p>
+                
+                <div class="command-box">
+                    <span class="accent-blue"># Buscar imágenes oficiales filtrando por popularidad</span><br>
+                    docker search nginx --filter "is-official=true"
+                </div>
+
+                <div class="command-box" style="margin-top: 20px;">
+                    <span class="accent-blue"># Bajar la imagen al disco duro local sin iniciarla</span><br>
+                    docker pull ubuntu:22.04
+                </div>
+                <p style="font-size: 0.65em; color: #94a3b8; text-align: left; margin-top: 10px;">💡 Si no especificas la versión (ej. `:22.04`), Docker descargará automáticamente la etiqueta `:latest`.</p>
+            </section>
+
+            <!-- Diapositiva 4: Inspección local -->
+            <section>
+                <h3>2. Listado e Inspección</h3>
+                <p style="font-size: 0.8em; text-align: left;">Comprueba qué tienes almacenado localmente y audita los pasos de su creación:</p>
+                
+                <div class="command-box">
+                    <span class="accent-blue"># Listar imágenes disponibles en tu host local</span><br>
+                    docker images
+                </div>
+
+                <div class="command-box" style="margin-top: 20px;">
+                    <span class="accent-blue"># Descubrir el tamaño y comandos de cada capa interna</span><br>
+                    docker history nginx
+                </div>
+            </section>
+
+            <!-- Diapositiva 5: Limpieza -->
+            <section>
+                <h3>3. Mantenimiento y Espacio</h3>
+                <p style="font-size: 0.8em; text-align: left;">Es crucial mantener limpio el entorno para evitar saturar el almacenamiento durante las prácticas.</p>
+                
+                <div class="command-box">
+                    <span class="accent-blue"># Eliminar una imagen concreta (por TAG o ID)</span><br>
+                    docker rmi alpine:latest
+                </div>
+
+                <div class="command-box" style="margin-top: 20px;">
+                    <span class="accent-blue"># Liberar espacio purgando todo lo que esté sin uso</span><br>
+                    docker system prune -a
+                </div>
+                <p style="font-size: 0.65em; color: #ef4444; text-align: left;"><i class="fas fa-exclamation-triangle"></i> Prune borrará contenedores parados, redes no utilizadas e imágenes huérfanas de golpe.</p>
+            </section>
+
+            <!-- Diapositiva 6: Dockerfile -->
+            <section>
+                <h3>4. Automatización con Dockerfile</h3>
+                <p style="font-size: 0.75em; text-align: left;">Para crear soluciones reproducibles, declaramos los pasos en un archivo de texto plano llamado <code style="color:white;">Dockerfile</code>:</p>
+                
+                <div class="grid-2">
+                    <pre><code class="language-dockerfile" data-trim data-noescape>
+                        # 1. Elegimos la imagen base
+                        FROM alpine:3.19
+
+                        # 2. Instalamos dependencias
+                        RUN apk update && apk add curl
+
+                        # 3. Directorio interno
+                        WORKDIR /app
+
+                        # 4. Acción predeterminada
+                        CMD ["curl", "https://ifconfig.me"]
+                    </code></pre>
+                    <div style="text-align: left; font-size: 0.7em;">
+                        <ul>
+                            <li><strong class="accent-green">FROM:</strong> Origen de la infraestructura.</li>
+                            <li><strong class="accent-green">RUN:</strong> Comandos ejecutados durante la compilación.</li>
+                            <li><strong class="accent-green">WORKDIR:</strong> Establece el contexto de ejecución.</li>
+                            <li><strong class="accent-green">CMD:</strong> Qué comando corre al arrancar el contenedor por defecto.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 7: Construcción y tag -->
+            <section>
+                <h3>5. Compilación y Etiquetado</h3>
+                <p style="font-size: 0.8em; text-align: left;">Transforma tu archivo descriptivo `Dockerfile` en una imagen empaquetada lista para funcionar.</p>
+                
+                <div class="command-box">
+                    <span class="accent-blue"># Construir la imagen indicando el directorio actual (.)</span><br>
+                    docker build -t mi-app:1.0 .
+                </div>
+
+                <div class="command-box" style="margin-top: 20px;">
+                    <span class="accent-blue"># Etiquetar con tu estructura de usuario para subir a la nube</span><br>
+                    docker tag mi-app:1.0 tu-usuario-hub/mi-app:1.0
+                </div>
+            </section>
+
+            <!-- Diapositiva 8: Compartir -->
+            <section>
+                <h3>6. Compartir y Desplegar</h3>
+                <div class="grid-2" style="font-size: 0.75em; margin-top: 20px;">
+                    <div style="background: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155;">
+                        <h4 style="margin:0 0 15px 0; font-size: 1.1rem; color:var(--docker-blue);"><i class="fas fa-cloud"></i> Registro Online</h4>
+                        <p style="color:#94a3b8; font-size:0.9em; margin-bottom:15px;">Ideal para entornos de red conectados:</p>
+                        <code style="font-size:0.85em;">docker login</code><br><br>
+                        <code style="font-size:0.85em;">docker push user/repo:tag</code>
+                    </div>
+                    <div style="background: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155;">
+                        <h4 style="margin:0 0 15px 0; font-size: 1.1rem; color:var(--docker-blue);"><i class="fas fa-file-export"></i> Archivo Físico (.tar)</h4>
+                        <p style="color:#94a3b8; font-size:0.9em; margin-bottom:15px;">Ideal para laboratorios aislados o pendrives:</p>
+                        <code style="font-size:0.85em;">docker save -o app.tar img</code><br><br>
+                        <code style="font-size:0.85em;">docker load -i app.tar</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Diapositiva 9: Despedida y retorno -->
+            <section data-background-gradient="linear-gradient(135deg, #1e293b 0%, #0f172a 100%)">
+                <h2>⚡ ¡Momento Práctico!</h2>
+                <p style="font-size: 1rem; color: #94a3b8; max-width: 750px; margin: 20px auto 40px auto;">Abre la terminal de tu equipo, ejecuta las opciones de búsqueda, descarga y verificación en el sistema de archivos local antes de pasar a la resolución de los casos del cuaderno.</p>
+                <div>
+                    <a href="index.html" style="background: var(--docker-green); color: #020617; padding: 14px 28px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(34,197,94,0.4);">
+                        <i class="fas fa-arrow-left"></i> Volver al Portal de Unidades
+                    </a>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Scripts de Reveal.js importados vía CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            plugins: [ RevealHighlight ],
+            slideNumber: 'c/t',
+            transition: 'fade',
+            controls: true,
+            progress: true,
+            center: true
+        });
+    </script>
+</body>
+</html>
