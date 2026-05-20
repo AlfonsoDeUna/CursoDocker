@@ -10,6 +10,7 @@
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --accent: #22c55e;
+            --accent-blue: #38bdf8;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
@@ -114,39 +115,40 @@
             font-weight: 600;
             font-size: 0.95rem;
         }
+        /* Variación de color para la UD 05 */
+        .card-volumenes:hover { border-color: var(--accent-blue); }
+        .card-volumenes .icon, .card-volumenes .btn, .card-volumenes .badge { color: var(--accent-blue); }
+        .card-volumenes .badge { background-color: rgba(56, 189, 248, 0.15); }
     </style>
 </head>
 <body>
     <div class="header">
         <h1><i class="fab fa-docker"></i> Curso de Introducción a <span>Docker y Kubernetes</span></h1>
-        <p>Material educativo interactivo. Explora los comandos y fundamentos visuales en las diapositivas antes de comenzar con la resolución de desafíos y casos prácticos en el laboratorio.</p>
+        <p>Portal de formación. Selecciona una unidad para explorar las diapositivas interactivas antes de proceder con las misiones en el laboratorio.</p>
     </div>
 
     <div class="grid">
-        <!-- Presentación 1 (Activa) -->
         <a href="presentacion_docker_imagenes.html" class="card">
             <span class="badge">Disponible</span>
             <div class="icon"><i class="fas fa-layer-group"></i></div>
             <h3>UD 04: Gestión de Imágenes</h3>
-            <p>Descubre cómo buscar, descargar, auditar capas, realizar mantenimiento de almacenamiento y automatizar entornos limpios con Dockerfile.</p>
+            <p>Descubre cómo buscar, descargar, auditar capas, realizar mantenimiento de almacenamiento y automatizar entornos con Dockerfile.</p>
             <div class="btn">Abrir Diapositivas <i class="fas fa-arrow-right"></i></div>
         </a>
 
-        <!-- Futura Presentación 2 (Ejemplo para expandir) -->
-        <a href="#" class="card disabled">
-            <span class="badge">Próximamente</span>
-            <div class="icon"><i class="fas fa-cubes"></i></div>
-            <h3>UD 05: Contenedores y Volúmenes</h3>
-            <p>Dominio del ciclo de vida de los contenedores, aislamiento de procesos, almacenamiento persistente mediante volúmenes y redirección de puertos.</p>
-            <div class="btn">Bloqueado</div>
+        <a href="presentacion_docker_volumenes.html" class="card card-volumenes">
+            <span class="badge">Disponible</span>
+            <div class="icon"><i class="fas fa-network-wired"></i></div>
+            <h3>UD 05: Redes y Volúmenes</h3>
+            <p>Dominio de la comunicación entre contenedores, aislamiento de redes, DNS interno y persistencia de datos mediante volúmenes y mounts.</p>
+            <div class="btn">Abrir Diapositivas <i class="fas fa-arrow-right"></i></div>
         </a>
 
-        <!-- Futura Presentación 3 (Ejemplo para expandir) -->
         <a href="#" class="card disabled">
             <span class="badge">Próximamente</span>
-            <div class="icon"><i class="fas fa-network-wired"></i></div>
+            <div class="icon"><i class="fas fa-project-diagram"></i></div>
             <h3>UD 06: Docker Compose</h3>
-            <p>Declaración de arquitecturas multi-contenedor, variables de entorno unificadas y despliegue rápido de microservicios locales.</p>
+            <p>Declaración de arquitecturas multi-contenedor, variables de entorno unificadas y despliegue rápido de microservicios.</p>
             <div class="btn">Bloqueado</div>
         </a>
     </div>

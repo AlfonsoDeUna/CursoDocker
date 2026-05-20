@@ -1,1 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UD 05: Redes y Volúmenes en Docker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --r-main-font: 'Segoe UI', system-ui, sans-serif;
+            --r-heading-font: 'Segoe UI', system-ui, sans-serif;
+            --r-link-color: #38bdf8;
+            --docker-blue: #0db7ed;
+            --docker-green: #22c55e;
+            --docker-orange: #f97316;
+        }
+        .reveal { background-color: #0b0f19; }
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none !important; font-weight: 700; }
+        .accent-blue { color: var(--docker-blue); }
+        .accent-orange { color: var(--docker-orange); }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
+        .command-box {
+            background: #1e293b !important;
+            border-left: 6px solid var(--docker-blue) !important;
+            padding: 18px !important;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            text-align: left;
+            margin-top: 15px !important;
+        }
+        .home-btn {
+            position: fixed; bottom: 25px; left: 25px; z-index: 1000;
+            color: #64748b; font-size: 1.6rem; transition: color 0.3s;
+        }
+        .home-btn:hover { color: var(--docker-blue); }
 
+        /* Diagrama de Persistencia */
+        .storage-box {
+            border: 2px solid #334155;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px;
+            font-size: 0.6em;
+            background: #1e293b;
+        }
+        .storage-active { border-color: var(--docker-blue); background: #0c4a6e; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="home-btn" title="Volver al menú">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <section data-background-gradient="linear-gradient(135deg, #0f172a 0%, #082f49 100%)">
+                <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;">
+                    <i class="fas fa-network-wired" style="font-size: 4rem; color: var(--docker-blue);"></i>
+                    <i class="fas fa-database" style="font-size: 4rem; color: var(--docker-green);"></i>
+                </div>
+                <h2>Redes y <span class="accent-blue">Volúmenes</span></h2>
+                <p style="color: #94a3b8; font-size: 1.2rem;">Comunicación y persistencia de datos en contenedores</p>
+                <div style="margin-top: 50px; font-size: 0.95rem; color: #cbd5e1;">
+                    Curso de Introducción a Docker y Kubernetes
+                </div>
+            </section>
+
+            <section>
+                <h3>Redes Predefinidas</h3>
+                <div class="grid-2">
+                    <div style="text-align: left; font-size: 0.75rem;">
+                        <ul>
+                            <li><strong class="accent-blue">Bridge:</strong> La red por defecto. Usa la interfaz <code>docker0</code> del host.</li>
+                            <li><strong class="accent-blue">Host:</strong> Elimina el aislamiento. El contenedor usa la IP y puertos del host directamente.</li>
+                            <li><strong class="accent-blue">None:</strong> Aislamiento total. Solo loopback.</li>
+                        </ul>
+                    </div>
+                    <div class="command-box">
+                        <span style="color: #94a3b8;"># Ver interfaces en el host</span><br>
+                        ip a show docker0<br><br>
+                        <span style="color: #94a3b8;"># Listar redes Docker</span><br>
+                        docker network ls
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Crear Redes Propias</h3>
+                <p style="font-size: 0.7em; text-align: left;">Crear redes personalizadas permite **aislamiento** y **resolución DNS automática** por nombre de contenedor.</p>
+                <div class="command-box">
+                    <span style="color: #94a3b8;"># Crear una red bridge aislada</span><br>
+                    docker network create red-proyectos
+                </div>
+                <div class="command-box" style="border-left-color: var(--docker-green);">
+                    <span style="color: #94a3b8;"># Conectar contenedores con nombres DNS</span><br>
+                    docker run -d --name db --network red-proyectos mariadb<br>
+                    docker run -it --network red-proyectos alpine ping db
+                </div>
+            </section>
+
+            <section>
+                <h3>¿Por qué necesitamos Volúmenes?</h3>
+                <p style="font-size: 0.8em; color: #ef4444;">"Los contenedores son efímeros"</p>
+                <div style="background: #1e293b; padding: 20px; border-radius: 12px; font-size: 0.7em; text-align: left; border: 1px solid #334155;">
+                    <p><i class="fas fa-times-circle" style="color: #ef4444;"></i> Si borras el contenedor, los datos internos <strong>se pierden</strong>.</p>
+                    <p><i class="fas fa-check-circle" style="color: var(--docker-green);"></i> Los volúmenes permiten que los datos sobrevivan al ciclo de vida del contenedor.</p>
+                </div>
+            </section>
+
+            <section>
+                <h3>Estrategias de Persistencia</h3>
+                <div class="grid-2" style="font-size: 0.8rem;">
+                    <div class="storage-box">
+                        <h4 class="accent-blue">Bind Mounts</h4>
+                        <p>Mapeas una <strong>ruta absoluta</strong> del host.</p>
+                        <p style="color: #94a3b8;">Ideal para compartir código fuente en desarrollo.</p>
+                    </div>
+                    <div class="storage-box storage-active">
+                        <h4 class="accent-green">Docker Volumes</h4>
+                        <p>Gestionados por Docker en <code>/var/lib/docker/volumes</code>.</p>
+                        <p style="color: #cbd5e1;">La opción recomendada para producción.</p>
+                    </div>
+                </div>
+                <p style="font-size: 0.5em; color: #64748b; margin-top: 20px;">* También existe <strong>tmpfs</strong>: almacenamiento veloz en RAM (no persistente).</p>
+            </section>
+
+            <section>
+                <h3>Uso de Bind Mounts</h3>
+                <p style="font-size: 0.8em; text-align: left;">Sincroniza una carpeta de tu ordenador con el contenedor:</p>
+                <div class="command-box">
+                    <span style="color: #94a3b8;"># Usando -v (Ruta Host : Ruta Contenedor)</span><br>
+                    docker run -d -v /home/user/web:/var/www/html nginx
+                </div>
+                <div class="command-box" style="margin-top: 20px;">
+                    <span style="color: #94a3b8;"># Usando --mount (Más explícito y recomendado)</span><br>
+                    docker run -d --mount type=bind,source=/home/user/web,target=/usr/share/nginx/html nginx
+                </div>
+            </section>
+
+            <section>
+                <h3>Gestión de Volúmenes</h3>
+                <p style="font-size: 0.8em; text-align: left;">Docker gestiona el almacenamiento por ti.</p>
+                <div class="command-box">
+                    <span style="color: #94a3b8;"># Crear y listar volúmenes</span><br>
+                    docker volume create datos-db<br>
+                    docker volume ls
+                </div>
+                <div class="command-box" style="border-left-color: var(--docker-green);">
+                    <span style="color: #94a3b8;"># Montar volumen en un contenedor</span><br>
+                    docker run -d -v datos-db:/var/lib/mysql mariadb
+                </div>
+            </section>
+
+            <section>
+                <h3>Copias de Seguridad</h3>
+                <p style="font-size: 0.7em; text-align: left;">Para hacer un backup de un volumen, lanzamos un contenedor temporal que lo comprima:</p>
+                <div class="command-box" style="font-size: 0.6em;">
+                    <span style="color: #94a3b8;"># Backup del volumen 'mis-datos' a un .tar en el host</span><br>
+                    docker run --rm --volumes-from contenedor-activo \<br>
+                    -v $(pwd):/backup ubuntu \<br>
+                    tar cvf /backup/backup_enero.tar /ruta/datos/interna
+                </div>
+                <div style="margin-top: 20px; font-size: 0.6em; color: #94a3b8; text-align: left;">
+                    <i class="fas fa-info-circle"></i> Este patrón monta los volúmenes del contenedor origen en uno de backup para realizar la copia.
+                </div>
+            </section>
+
+            <section data-background-gradient="linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)">
+                <h2>🚀 ¡A Laboratorio!</h2>
+                <p style="font-size: 1rem; color: #94a3b8;">Prueba a conectar dos contenedores Alpine a una red propia y verifica que puedes hacer ping entre ellos usando sus nombres.</p>
+                <div style="margin-top: 40px;">
+                    <a href="index.html" style="background: var(--docker-blue); color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                        Finalizar y Volver
+                    </a>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            plugins: [ RevealHighlight ],
+            transition: 'slide',
+            center: true
+        });
+    </script>
+</body>
+</html>
