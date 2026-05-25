@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UD 06: Docker Compose</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --accent: #a855f7;
+            --code-bg: #1e1e1e;
+        }
+        .reveal { background-color: #0b0f19; }
+        .reveal h2, .reveal h3 { color: #f8fafc; text-transform: none; }
+        .accent { color: var(--accent); }
+        .home-btn {
+            position: fixed; bottom: 25px; left: 25px; z-index: 1000;
+            color: #64748b; font-size: 1.5rem; transition: 0.3s;
+        }
+        .home-btn:hover { color: var(--accent); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
+        .yaml-box { 
+            background: var(--code-bg); padding: 20px; border-radius: 8px; 
+            border-left: 5px solid var(--accent); text-align: left; font-size: 0.55em !important;
+        }
+        ul { font-size: 0.8em; }
+        li { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <section data-background-gradient="linear-gradient(135deg, #0f172a 0%, #3b0764 100%)">
+                <i class="fas fa-project-diagram" style="font-size: 5rem; color: var(--accent); margin-bottom: 20px;"></i>
+                <h2>UD 06: <span class="accent">Docker Compose</span></h2>
+                <p>Orquestación de aplicaciones multi-contenedor</p>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 50px;">Curso de Introducción a Docker y Kubernetes</p>
+            </section>
+
+            <section>
+                <h3>¿Qué es Docker Compose?</h3>
+                <div class="grid">
+                    <div style="text-align: left; font-size: 0.75rem;">
+                        <p>Es una herramienta para **definir y ejecutar** aplicaciones Docker de múltiples contenedores.</p>
+                        <ul>
+                            <li>Usa un fichero **YAML** para la configuración.</li>
+                            <li>Lanza todos los servicios con un solo comando.</li>
+                            <li>Actúa como un orquestador simple a nivel local.</li>
+                        </ul>
+                    </div>
+                    <div style="background: #1e293b; padding: 20px; border-radius: 10px;">
+                        <code class="accent" style="font-size: 1.2rem;">docker compose version</code>
+                        <p style="font-size: 0.6rem; color: #94a3b8; margin-top: 10px;">Nota: En versiones actuales se integra como plugin de Docker (sin guion).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>El Formato YAML</h3>
+                <p style="font-size: 0.7rem;">"YAML Ain't Markup Language". Basado en sangrías (indentación).</p>
+                <div class="grid">
+                    <div class="yaml-box">
+<pre><code class="language-yaml"># Estructura básica
+servicios:
+  base_datos:      # Objeto
+    imagen: mysql  # Par clave/valor
+    puertos:       # Lista
+      - "3306:3306"
+</code></pre>
+                    </div>
+                    <ul style="font-size: 0.6rem;">
+                        <li><strong class="accent">Pares clave/valor:</strong> `imagen: nginx`</li>
+                        <li><strong class="accent">Listas:</strong> Empiezan con un guion `-`.</li>
+                        <li><strong class="accent">Indentación:</strong> Fundamental para definir jerarquías (como en Python).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h3>docker-compose.yml</h3>
+                <p style="font-size: 0.6rem;">Conceptos clave que podemos definir:</p>
+                <div class="grid" style="font-size: 0.55rem; text-align: left;">
+                    <div style="background: #1e293b; padding: 15px; border-radius: 8px;">
+                        <p><strong class="accent">services:</strong> Los contenedores que forman la app.</p>
+                        <p><strong class="accent">image:</strong> Imagen base del servicio.</p>
+                        <p><strong class="accent">build:</strong> Directorio con un Dockerfile propio.</p>
+                        <p><strong class="accent">ports:</strong> Mapeo de puertos (Host:Contenedor).</p>
+                    </div>
+                    <div style="background: #1e293b; padding: 15px; border-radius: 8px;">
+                        <p><strong class="accent">depends_on:</strong> Orden de arranque de servicios.</p>
+                        <p><strong class="accent">environment:</strong> Variables de entorno.</p>
+                        <p><strong class="accent">volumes:</strong> Persistencia de datos compartida.</p>
+                        <p><strong class="accent">restart:</strong> Política de reinicio (always, on-failure).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Ejemplo: Wordpress + DB</h3>
+                <div class="yaml-box">
+<pre><code class="language-yaml">version: "3.9"
+services:
+  db:
+    image: mariadb:10.11
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+</code></pre>
+                </div>
+                <p style="font-size: 0.6rem; margin-top: 10px;">Lanzamos con: <code class="accent">docker compose up -d</code></p>
+            </section>
+
+            <section>
+                <h3>Ciclo de Vida (Comandos)</h3>
+                <div style="text-align: left; font-size: 0.7rem;">
+                    <p><code class="accent">up -d</code>: Crea y arranca en segundo plano.</p>
+                    <p><code class="accent">ps</code>: Lista los contenedores del proyecto.</p>
+                    <p><code class="accent">stop / start</code>: Detiene o inicia servicios.</p>
+                    <p><code class="accent">down</code>: Para y **elimina** contenedores y redes.</p>
+                    <p><code class="accent">logs -f</code>: Ver la salida de todos los servicios.</p>
+                </div>
+            </section>
+
+            <section>
+                <h3>Escalado Local</h3>
+                <p style="font-size: 0.75rem;">Docker Compose permite replicar servicios fácilmente:</p>
+                <div class="command-box" style="background: #1e293b; padding: 20px; border-radius: 8px; border-left: 5px solid var(--accent);">
+                    <code style="font-size: 1.1rem;">docker compose up -d --scale app=3</code>
+                </div>
+                <p style="font-size: 0.6rem; color: #94a3b8; margin-top: 20px;">Esto levantará 3 instancias del servicio 'app'. El balanceo de carga interno se gestiona mediante el DNS de Docker.</p>
+            </section>
+
+            <section data-background-gradient="linear-gradient(135deg, #3b0764 0%, #0f172a 100%)">
+                <h2>🚀 ¡Listo para el laboratorio!</h2>
+                <p>Prueba a levantar el escenario de Wordpress y comprueba cómo `depends_on` gestiona el orden de arranque.</p>
+                <br>
+                <a href="index.html" style="color: var(--accent); text-decoration: none; font-weight: bold;">Volver al Portal</a>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            plugins: [ RevealHighlight ],
+            center: true
+        });
+    </script>
+</body>
+</html>
